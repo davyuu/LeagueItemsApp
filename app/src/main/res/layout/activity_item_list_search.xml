@@ -10,7 +10,14 @@
     android:orientation="vertical"
     tools:context=".ItemListActivity">
 
-    <RelativeLayout
+    <!--<android.support.v7.widget.Toolbar-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:id="@+id/search_toolbar">-->
+
+    <!--</android.support.v7.widget.Toolbar>-->
+
+    <!--<RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/list_row_size">
         <EditText
@@ -29,7 +36,7 @@
             android:clickable="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"/>
-    </RelativeLayout>
+    </RelativeLayout>-->
 
     <!--<SearchView-->
         <!--android:layout_width="match_parent"-->

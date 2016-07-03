@@ -1,13 +1,19 @@
 package com.davyuu.leagueitemsmobafire;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.database.SQLException;
 import android.speech.RecognizerIntent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.view.menu.MenuItemImpl;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -53,7 +59,7 @@ public class ItemListActivity extends AppCompatActivity {
             throw sqle;
         }
 
-        searchEditText = (EditText) findViewById(R.id.search_edit_text);
+        /*searchEditText = (EditText) findViewById(R.id.search_edit_text);
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -76,20 +82,21 @@ public class ItemListActivity extends AppCompatActivity {
             public void onClick(View v) {
                 displaySpeechRecognizer();
             }
-        });
-//        searchView = (SearchView) findViewById(R.id.search_view);
-//        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-//            @Override
-//            public boolean onQueryTextSubmit(String query) {
-//                return false;
-//            }
-//
-//            @Override
-//            public boolean onQueryTextChange(String newText) {
-//                itemListAdapterAdapter.getFilter().filter(newText);
-//                return false;
-//            }
-//        });
+        });*/
+
+        /*searchView = (SearchView) findViewById(R.id.search_view);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                itemListAdapterAdapter.getFilter().filter(newText);
+                return false;
+            }
+        });*/
 
         itemListView = (ListView) findViewById(R.id.item_list);
         itemAllNamesList = dbHelper.getAllNames();
@@ -108,6 +115,44 @@ public class ItemListActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent){
+        if(Intent.ACTION_SEARCH.equals(intent.getAction())){
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            searchView.setQuery(String.valueOf(query), false);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+
+        searchView = (SearchView) menu.findItem(R.id.search_view).getActionView();
+
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if(newText != null){
+                    doSearch(newText);
+                }
+                return false;
+            }
+        });
+        return true;
+    }
+
+    public void doSearch(String searchText){
+        itemListAdapterAdapter.getFilter().filter(searchText);
     }
 
     private static final int SPEECH_REQUEST_CODE = 0;
