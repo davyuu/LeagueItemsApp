@@ -1,43 +1,32 @@
 package com.davyuu.leagueitemsmobafire;
 
-import android.app.SearchManager;
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
 import android.database.SQLException;
 import android.speech.RecognizerIntent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.view.menu.MenuItemImpl;
-import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.SearchView;
+import android.widget.Spinner;
 import android.widget.TextView;
-
-import java.util.ArrayList;
 import java.util.List;
 
-import static android.R.layout.simple_list_item_1;
-
-public class ItemListActivity extends AppCompatActivity {
+public class ItemListActivity extends Activity {
 
     private DatabaseHelper dbHelper;
     private EditText searchEditText;
-    private ImageButton searchButton;
-    private SearchView searchView;
+    private Button searchRemoveBtn;
+    private Button searchVoiceBtn;
+    private Spinner filterSpinner;
     private ListView itemListView;
     private ItemListAdapter itemListAdapterAdapter;
 
-    private List<String> itemAllNamesList;
     private List<String> itemNameList;
 
     @Override
@@ -59,7 +48,7 @@ public class ItemListActivity extends AppCompatActivity {
             throw sqle;
         }
 
-        /*searchEditText = (EditText) findViewById(R.id.search_edit_text);
+        searchEditText = (EditText) findViewById(R.id.search_edit_text);
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -73,34 +62,37 @@ public class ItemListActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                itemListAdapterAdapter.getFilter().filter(s.toString());
+                if(s.length() > 0){
+                    searchRemoveBtn.setVisibility(View.VISIBLE);
+                    searchVoiceBtn.setVisibility(View.GONE);
+                }
+                else{
+                    searchRemoveBtn.setVisibility(View.GONE);
+                    searchVoiceBtn.setVisibility(View.VISIBLE);
+                }
+                doSearch(s.toString());
             }
         });
-        searchButton = (ImageButton) findViewById(R.id.search_button);
-        searchButton.setOnClickListener(new View.OnClickListener() {
+        searchRemoveBtn = (Button) findViewById(R.id.search_remove_btn);
+        searchRemoveBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                searchEditText.setText("");
+            }
+        });
+
+        searchVoiceBtn = (Button) findViewById(R.id.search_voice_btn);
+        searchVoiceBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 displaySpeechRecognizer();
             }
-        });*/
+        });
 
-        /*searchView = (SearchView) findViewById(R.id.search_view);
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                itemListAdapterAdapter.getFilter().filter(newText);
-                return false;
-            }
-        });*/
+        filterSpinner = (Spinner) findViewById(R.id.filter_spinner);
 
         itemListView = (ListView) findViewById(R.id.item_list);
-        itemAllNamesList = dbHelper.getAllNames();
-        itemNameList = itemAllNamesList;
+        itemNameList = dbHelper.getAllNames();
         itemListAdapterAdapter = new ItemListAdapter(ItemListActivity.this, itemNameList,
                dbHelper);
         itemListView.setAdapter(itemListAdapterAdapter);
@@ -117,39 +109,12 @@ public class ItemListActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    protected void onNewIntent(Intent intent){
-        if(Intent.ACTION_SEARCH.equals(intent.getAction())){
-            String query = intent.getStringExtra(SearchManager.QUERY);
-            searchView.setQuery(String.valueOf(query), false);
-        }
-    }
-
-    @Override
+    /*@Override
     public boolean onCreateOptionsMenu(Menu menu){
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
-
-        searchView = (SearchView) menu.findItem(R.id.search_view).getActionView();
-
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                if(newText != null){
-                    doSearch(newText);
-                }
-                return false;
-            }
-        });
         return true;
-    }
+    }*/
 
     public void doSearch(String searchText){
         itemListAdapterAdapter.getFilter().filter(searchText);
@@ -160,7 +125,6 @@ public class ItemListActivity extends AppCompatActivity {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        // Start the activity, the intent will be populated with the speech text
         startActivityForResult(intent, SPEECH_REQUEST_CODE);
     }
 
@@ -171,7 +135,6 @@ public class ItemListActivity extends AppCompatActivity {
             List<String> results = data.getStringArrayListExtra(
                     RecognizerIntent.EXTRA_RESULTS);
             String spokenText = results.get(0);
-
             searchEditText.setText(spokenText);
         }
         super.onActivityResult(requestCode, resultCode, data);

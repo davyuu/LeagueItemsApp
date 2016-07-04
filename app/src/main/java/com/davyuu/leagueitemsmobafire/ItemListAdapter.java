@@ -24,12 +24,14 @@ public class ItemListAdapter extends BaseAdapter implements Filterable{
     private List<String> mDisplayItemNameList;
     private final Map<String, String> mItemTotalPriceList;
     private final Map<String, Integer> mItemImageList;
+    private final Map<String, List<String>> mItemCategoryMap;
 
     public ItemListAdapter(Context context, List<String> itemNameList, DatabaseHelper dbHelper){
         this.mOriginalItemNameList = itemNameList;
-        this.mDisplayItemNameList = itemNameList;
         this.mItemTotalPriceList = dbHelper.getAllTotalPrices();
         this.mItemImageList = dbHelper.getAllImageIds();
+        this.mItemCategoryMap = dbHelper.getAllCategories();
+        this.mDisplayItemNameList = filterCategory("all");
         mInflater = LayoutInflater.from(context);
     }
 
@@ -75,6 +77,17 @@ public class ItemListAdapter extends BaseAdapter implements Filterable{
         holder.itemImageView.setImageResource(mItemImageList.get(itemName));
 
         return view;
+    }
+
+    private List<String> filterCategory(String category){
+        List<String> filteredItemNameList = new ArrayList<>();
+        for(String name : mOriginalItemNameList){
+            List<String> filterList = mItemCategoryMap.get(name);
+            if(filterList.contains(category)){
+                filteredItemNameList.add(name);
+            }
+        }
+        return filteredItemNameList;
     }
 
     @Override
