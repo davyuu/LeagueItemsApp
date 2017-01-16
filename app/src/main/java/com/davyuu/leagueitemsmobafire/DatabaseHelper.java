@@ -31,12 +31,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_IMAGE_NAME = "item_image_src";
     public static final String COL_FILTER = "item_filter";
 
-    private SQLiteDatabase myDatabase;
-    private final Context context;
+    private SQLiteDatabase mDatabase;
+    private final Context mContext;
 
     public DatabaseHelper(Context context) {
         super(context, DB_NAME, null, 1);
-        this.context = context;
+        this.mContext = context;
     }
 
     public void createDataBase() throws IOException{
@@ -61,7 +61,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private void copyDataBase() throws IOException{
         //Open your local db as the input stream
-        InputStream myInput = context.getAssets().open(DB_NAME);
+        InputStream myInput = mContext.getAssets().open(DB_NAME);
         // Path to the just created empty db
         String outFileName = DB_PATH + DB_NAME;
         //Open the empty db as the output stream
@@ -84,9 +84,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if(checkDataBase()){
             String mPath = DB_PATH + DB_NAME;
             //Log.v("mPath", mPath);
-            myDatabase = SQLiteDatabase.openDatabase(mPath, null, SQLiteDatabase.CREATE_IF_NECESSARY);
+            mDatabase = SQLiteDatabase.openDatabase(mPath, null, SQLiteDatabase.CREATE_IF_NECESSARY);
             //mDataBase = SQLiteDatabase.openDatabase(mPath, null, SQLiteDatabase.NO_LOCALIZED_COLLATORS);
-            return myDatabase != null;
+            return mDatabase != null;
         }
         else{
             return false;
@@ -175,7 +175,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             int priceIndex = cursor.getColumnIndex(COL_TOTAL_PRICE);
             String name = cursor.getString(nameIndex);
             String imageName = cursor.getString(imageIndex);
-            int imageId = context.getResources().getIdentifier(imageName, "drawable", context.getPackageName());
+            int imageId = mContext.getResources().getIdentifier(imageName, "drawable", mContext.getPackageName());
             String totalPrice = cursor.getString(priceIndex);
             nameList.add(name);
             imageIdMap.put(name, imageId);
@@ -267,7 +267,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             String name = cursor.getString(nameIndex);
             String imageUrl = cursor.getString(imageIndex);
             String imageName = formatImageUrl(imageUrl);
-            int imageId = context.getResources().getIdentifier(imageName, "drawable", context.getPackageName());
+            int imageId = mContext.getResources().getIdentifier(imageName, "drawable", mContext.getPackageName());
             imageIdMap.put(name, imageId);
             cursor.moveToNext();
         }
